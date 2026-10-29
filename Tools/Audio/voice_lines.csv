@@ -1,0 +1,14 @@
+id,text
+emergency_detected,Emergency detected. Stay calm and follow my instructions.
+follow_to_exit_b,Follow me towards Exit B.
+exit_a_blocked_turn_left,Exit A is blocked by fire. Turn left and follow me towards Exit B.
+exit_a_blocked,Exit A is blocked. Do not approach the fire.
+elevator_unavailable,The elevator is unavailable. Do not use it during this emergency.
+stairs_not_exit,These stairs are not a way out. Stay in the corridor.
+restricted_rooms,Stay away from the restricted classroom and laboratory.
+exit_b_clear,Exit B is clear. Go through the doors.
+exit_b_reached,Well done. Keep going to the assembly point.
+keep_moving,Keep moving along the marked evacuation route.
+assembly_reached,You have reached the assembly point. Please remain here.
+catch_up,Stay with me. This way please.
+return_to_route,Come back to the corridor and follow me towards Exit B.

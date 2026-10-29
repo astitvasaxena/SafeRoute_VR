@@ -7,7 +7,8 @@ namespace SafeRoute.Evacuation
         BlockedExit,      // exit made unusable by a hazard (smoke, fire)
         UnavailableRoute, // route that must not be used in a fire (elevator)
         SafeExit,         // designated safe exit
-        AssemblyPoint     // completes the exercise
+        AssemblyPoint,    // completes the exercise
+        Restricted        // area the trainee must not enter (irrelevant classrooms); appended to keep saved values
     }
 
     /// <summary>
@@ -21,10 +22,14 @@ namespace SafeRoute.Evacuation
         public ZoneType zoneType;
         public string displayName = "Zone";
         [TextArea(2, 6)] public string explanation;
+        [Tooltip("Short line the instructor says when the trainee enters this zone (optional).")]
+        public string instructorLine;
 
         BoxCollider box;
 
         public bool IsUnsafe => zoneType == ZoneType.BlockedExit || zoneType == ZoneType.UnavailableRoute;
+        /// <summary>The safe route must never pass through this zone.</summary>
+        public bool BlocksRoute => IsUnsafe || zoneType == ZoneType.Restricted;
 
         public bool Contains(Vector3 worldPoint)
         {
@@ -48,6 +53,7 @@ namespace SafeRoute.Evacuation
                 ZoneType.BlockedExit => Color.red,
                 ZoneType.UnavailableRoute => new Color(1f, 0.5f, 0f),
                 ZoneType.SafeExit => Color.green,
+                ZoneType.Restricted => Color.magenta,
                 _ => Color.cyan
             };
             Gizmos.matrix = transform.localToWorldMatrix;

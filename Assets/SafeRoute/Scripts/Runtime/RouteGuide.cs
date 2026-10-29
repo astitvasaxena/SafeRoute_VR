@@ -29,17 +29,32 @@ namespace SafeRoute.Evacuation
 
         int index;
         bool hidden;
+        // Label cache: the string is rebuilt only when the rounded distance or target changes (no per-frame GC).
+        int shownDistance = -1;
+        bool shownToExit;
 
         public void Hide()
         {
             hidden = true;
             if (arrow != null) arrow.gameObject.SetActive(false);
             if (labelRoot != null) labelRoot.gameObject.SetActive(false);
+            if (label != null) label.text = "";
+            shownDistance = -1;
+        }
+
+        /// <summary>Shows the guidance again from the first waypoint (new attempt).</summary>
+        public void ResetProgress()
+        {
+            index = 0;
+            hidden = false;
+            shownDistance = -1;
+            if (arrow != null) arrow.gameObject.SetActive(true);
+            if (labelRoot != null) labelRoot.gameObject.SetActive(true);
         }
 
         void LateUpdate()
         {
-            if (hidden || arrow == null || waypoints == null || waypoints.Length == 0) return;
+            if (hidden || waypoints == null || waypoints.Length == 0) return;
             if (head == null)
             {
                 if (Camera.main == null) return;
@@ -55,11 +70,14 @@ namespace SafeRoute.Evacuation
             forward = forward.sqrMagnitude > 1e-4f ? forward.normalized : Vector3.forward;
 
             Vector3 pos = headPos + forward * forwardDistance + Vector3.up * heightOffset;
-            arrow.position = pos;
-            Vector3 dir = waypoints[index].position - pos;
-            dir.y = 0f;
-            if (dir.sqrMagnitude > 1e-4f)
-                arrow.rotation = Quaternion.Slerp(arrow.rotation, Quaternion.LookRotation(dir), Time.deltaTime * turnSpeed);
+            if (arrow != null)
+            {
+                arrow.position = pos;
+                Vector3 dir = waypoints[index].position - pos;
+                dir.y = 0f;
+                if (dir.sqrMagnitude > 1e-4f)
+                    arrow.rotation = Quaternion.Slerp(arrow.rotation, Quaternion.LookRotation(dir), Time.deltaTime * turnSpeed);
+            }
 
             if (labelRoot != null)
             {
@@ -71,7 +89,13 @@ namespace SafeRoute.Evacuation
             {
                 bool toExit = index <= exitWaypointIndex;
                 int target = toExit ? exitWaypointIndex : waypoints.Length - 1;
-                label.text = $"{(toExit ? exitName : assemblyName)}: {DistanceTo(headPos, target):0} m";
+                int metres = Mathf.RoundToInt(DistanceTo(headPos, target));
+                if (metres != shownDistance || toExit != shownToExit)
+                {
+                    shownDistance = metres;
+                    shownToExit = toExit;
+                    label.text = $"{(toExit ? exitName : assemblyName)}: {metres} m";
+                }
             }
         }
 
